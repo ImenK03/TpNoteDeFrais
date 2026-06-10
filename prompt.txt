@@ -1,0 +1,20 @@
+Analyse cette image de note de frais et retourne exactement un objet JSON avec les champs suivants :
+
+{
+  "type_document": "restaurant | transport | hôtel | autre",
+  "fournisseur": "nom du commerce, de l'hôtel ou de la compagnie, ou null",
+  "date": "date de la dépense au format JJ/MM/AAAA, ou null",
+  "montant_ttc": nombre décimal correspondant au total TTC en euros, ou null,
+  "tva": nombre décimal correspondant au montant de TVA si lisible, ou null,
+  "devise": "devise utilisée, EUR par défaut",
+  "description": "courte description libre de la dépense, ou null",
+  "confiance": "haute | moyen | basse"
+}
+
+Contraintes :
+- type_document doit être uniquement : restaurant, transport, hôtel ou autre.
+- montant_ttc et tva doivent être des nombres, pas des chaînes de caractères.
+- Si le ticket est flou, incomplet ou mal cadré, utilise confiance = "basse".
+- Si la majorité des champs est lisible mais qu'il reste des incertitudes, utilise confiance = "moyen".
+- Si tous les champs importants sont clairement lisibles, utilise confiance = "haute".
+- Retourne uniquement le JSON final.
