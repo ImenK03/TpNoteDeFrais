@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion agentique des notes de frais</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body>
+    <main class="page">
+        <header class="hero">
+            <p class="badge">Application agentique · Notes de frais</p>
+            <h1>Analyse une note de frais et envoie-la dans Google Sheets</h1>
+            <p>
+                Upload une photo de ticket, vérifie les informations extraites par l'IA,
+                corrige si besoin, puis archive la dépense dans le Google Sheet partagé.
+            </p>
+        </header>
+
+        <section class="card upload-card">
+            <div class="section-title">
+                <span>1</span>
+                <div>
+                    <h2>Importer une image</h2>
+                    <p>Formats acceptés : JPG, PNG, WEBP, HEIC · Taille max : 5 Mo</p>
+                </div>
+            </div>
+
+            <form
+                id="analyze-form"
+                class="upload-zone"
+                hx-post="/api/analyze"
+                hx-target="#result-container"
+                hx-swap="innerHTML"
+                hx-encoding="multipart/form-data"
+            >
+                <input id="file-input" type="file" name="file" accept="image/*" capture="environment" required>
+                <label for="file-input" class="file-label">
+                    <strong>Prendre une photo / Choisir un fichier</strong>
+                    <span>Clique ici pour sélectionner ton justificatif</span>
+                </label>
+
+                <div id="preview-wrapper" class="preview-wrapper hidden">
+                    <img id="preview-image" alt="Prévisualisation de la note de frais">
+                </div>
+
+                <button type="submit" class="primary-button">Analyser la note de frais</button>
+            </form>
+        </section>
+
+        <div id="result-container"></div>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
