@@ -1,0 +1,20 @@
+# Environnement Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Secrets à ne jamais commiter
+.env
+*.json
+credentials/
+
+# Fichiers locaux de test
+uploads/
+test_images/*
+!test_images/.gitkeep
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
