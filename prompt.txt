@@ -1,4 +1,4 @@
-Analyse cette image de note de frais et retourne exactement un objet JSON avec les champs suivants :
+﻿Analyse cette image de note de frais et retourne exactement un objet JSON avec les champs suivants :
 
 {
   "type_document": "restaurant | transport | hôtel | autre",
