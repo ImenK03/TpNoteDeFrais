@@ -170,13 +170,20 @@ async def submit_expense(
     try:
         image_url = ""
 
-        if image_data.strip():
+                if image_data.strip():
             image_bytes = base64.b64decode(image_data)
 
-            image_url = get_sheets_client().upload_image(
-                image_bytes=image_bytes,
-                media_type=image_media_type,
-            )
+            try:
+                image_url = get_sheets_client().upload_image(
+                    image_bytes=image_bytes,
+                    media_type=image_media_type,
+                )
+            except Exception as drive_exc:
+                image_url = (
+                    "Image non uploadée : compte de service sans quota Drive. "
+                    "Utiliser un Drive partagé pour l'archivage complet."
+                )
+                print(f"Erreur Drive ignorée : {drive_exc}")
 
         get_sheets_client().append_expense(
             data=data,
