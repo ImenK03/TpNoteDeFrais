@@ -53,11 +53,6 @@ def get_sheets_client() -> GoogleSheetsClient:
 
 
 def e(value) -> str:
-    """
-    Échappe les valeurs injectées dans le HTML.
-    Cela évite les bugs si le modèle retourne des caractères spéciaux.
-    """
-
     if value is None:
         return ""
 
@@ -73,20 +68,11 @@ def selected(current_value: str, expected_value: str) -> str:
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    """
-    Route principale : affiche la page HTML.
-    """
-
     return FileResponse(BASE_DIR / "static" / "index.html")
 
 
 @app.post("/api/analyze", response_class=HTMLResponse)
 async def analyze(file: UploadFile = File(...)):
-    """
-    Reçoit une image, vérifie son format,
-    appelle l'agent IA, puis retourne un formulaire HTML pré-rempli.
-    """
-
     if not file:
         raise HTTPException(
             status_code=400,
@@ -151,11 +137,6 @@ async def submit_expense(
     image_data: str = Form(""),
     image_media_type: str = Form("image/jpeg"),
 ):
-    """
-    Reçoit les champs corrigés par l'utilisateur,
-    upload l'image dans Drive, puis écrit la ligne dans Google Sheets.
-    """
-
     data = {
         "type_document": type_document,
         "fournisseur": fournisseur,
@@ -170,7 +151,7 @@ async def submit_expense(
     try:
         image_url = ""
 
-                if image_data.strip():
+        if image_data.strip():
             image_bytes = base64.b64decode(image_data)
 
             try:
@@ -196,13 +177,21 @@ async def submit_expense(
             detail=f"Erreur pendant l'envoi vers Google Sheets : {exc}"
         )
 
+    image_line = ""
+
+    if image_url:
+        if image_url.startswith("http"):
+            image_line = f'<br><a href="{e(image_url)}" target="_blank" rel="noopener">Voir l’image archivée</a>'
+        else:
+            image_line = f"<br>{e(image_url)}"
+
     return HTMLResponse(
         f"""
         <div class="alert alert-success">
             <strong>Note de frais envoyée avec succès.</strong><br>
             Fournisseur : {e(fournisseur) or "non renseigné"}<br>
             Montant TTC : {e(montant_ttc) or "non renseigné"} {e(devise or "EUR")}
-            {f'<br><a href="{e(image_url)}" target="_blank" rel="noopener">Voir l’image archivée</a>' if image_url else ''}
+            {image_line}
         </div>
         """
     )
@@ -210,12 +199,6 @@ async def submit_expense(
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
-    """
-    Gestion des erreurs HTTP.
-    On retourne du HTML, pas du JSON brut,
-    pour que HTMX puisse l'afficher dans la page.
-    """
-
     return HTMLResponse(
         render_error(str(exc.detail)),
         status_code=exc.status_code
@@ -224,10 +207,6 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):
-    """
-    Gestion des erreurs inattendues.
-    """
-
     return HTMLResponse(
         render_error(f"Erreur inattendue : {exc}"),
         status_code=500
@@ -235,11 +214,6 @@ async def generic_exception_handler(request: Request, exc: Exception):
 
 
 def to_float_or_none(value: str):
-    """
-    Convertit une chaîne en nombre.
-    Si le champ est vide ou invalide, retourne None.
-    """
-
     if value is None or str(value).strip() == "":
         return None
 
@@ -256,10 +230,6 @@ def to_float_or_none(value: str):
 
 
 def render_error(message: str) -> str:
-    """
-    Fragment HTML d'erreur.
-    """
-
     return f"""
     <div class="alert alert-error">
         <strong>Erreur</strong><br>
@@ -269,11 +239,6 @@ def render_error(message: str) -> str:
 
 
 def render_edit_form(data: dict, image_base64: str, media_type: str) -> str:
-    """
-    Génère le formulaire HTML pré-rempli après analyse IA.
-    HTMX va injecter ce fragment directement dans la page.
-    """
-
     type_document = data.get("type_document") or "autre"
     confiance = data.get("confiance") or "basse"
 
